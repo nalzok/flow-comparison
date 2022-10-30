@@ -8,7 +8,7 @@ import torchvision.models as models
 
 
 class _netVGGFeatures(nn.Module):
-    def __init__(self,device):
+    def __init__(self, device):
         super(_netVGGFeatures, self).__init__()
         self.vggnet = models.vgg16(pretrained=True).to(device)
         self.layer_ids = [2, 7, 12, 21, 30]
@@ -35,8 +35,8 @@ class _VGGDistance(nn.Module):
         self.levels = levels
         self.factors = [0] * (self.levels + 1)
         self.pool = nn.AvgPool2d(8, 8)
-        self.mse = nn.MSELoss(reduction='sum')
-        
+        self.mse = nn.MSELoss(reduction="sum")
+
     def forward(self, I1, I2, use_factors=False):
         eps = 1e-8
         sum_factors = sum(self.factors)
@@ -48,7 +48,7 @@ class _VGGDistance(nn.Module):
             self.factors[i] += layer_loss.item()
             if use_factors:
                 layer_loss = sum_factors / (self.factors[i] + eps) * layer_loss
-            
+
             loss = loss + layer_loss
-            
+
         return loss

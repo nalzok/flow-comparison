@@ -6,6 +6,7 @@ the encoder is symmetric to the decode.
 from __future__ import print_function
 import torch.nn as nn
 
+
 def initialize_weights(net):
     for m in net.modules():
         if isinstance(m, nn.Conv2d):
@@ -17,11 +18,12 @@ def initialize_weights(net):
         elif isinstance(m, nn.Linear):
             m.weight.data.normal_(0, 0.02)
             m.bias.data.zero_()
-           
+
+
 class ConvAE(nn.Module):
     def __init__(self, args):
         super(ConvAE, self).__init__()
-        if args.dataset == 'mnist' or args.dataset == 'fashion-mnist':
+        if args.dataset == "mnist" or args.dataset == "fashion-mnist":
             self.nc = 1
         else:
             self.nc = 3
@@ -36,14 +38,14 @@ class ConvAE(nn.Module):
             nn.BatchNorm2d(128),
             nn.ReLU(True),
         )
-        
+
         self.encode_fc = nn.Sequential(
             nn.Linear(128 * (self.input_size // 4) * (self.input_size // 4), 1024),
             nn.BatchNorm1d(1024),
             nn.ReLU(True),
             nn.Linear(1024, self.nz),
         )
-        
+
         self.decode_fc = nn.Sequential(
             nn.Linear(self.nz, 1024),
             nn.BatchNorm1d(1024),
@@ -57,22 +59,26 @@ class ConvAE(nn.Module):
             nn.BatchNorm2d(64),
             nn.ReLU(True),
             nn.ConvTranspose2d(64, self.nc, 4, 2, 1),
-            nn.Tanh()
+            nn.Tanh(),
         )
-        
+
         initialize_weights(self)
 
     def encode(self, x):
         conv = self.conv(x)
-        h1 = self.encode_fc(conv.view(-1, 128*(self.input_size//4)*(self.input_size//4)))
+        h1 = self.encode_fc(
+            conv.view(-1, 128 * (self.input_size // 4) * (self.input_size // 4))
+        )
         return h1
-    
+
     def decode(self, z):
         deconv_input = self.decode_fc(z)
-        deconv_input = deconv_input.view(-1,128, self.input_size//4, self.input_size//4)
+        deconv_input = deconv_input.view(
+            -1, 128, self.input_size // 4, self.input_size // 4
+        )
         output = self.deconv(deconv_input)
-        if not self.args.loss_type == 'Perceptual':
-            output = output*0.5 + 0.5
+        if not self.args.loss_type == "Perceptual":
+            output = output * 0.5 + 0.5
         return output
 
     def forward(self, x):
