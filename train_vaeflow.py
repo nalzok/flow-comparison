@@ -33,8 +33,8 @@ if __name__ == '__main__':
     parser.add_argument("--batch_size", dest="batch_size", default=256, type=int,
                         help="Number of examples per batch.")
     
-    parser.add_argument('--device', dest = 'device',default=0, type=int, 
-                        help='Index of device')
+    parser.add_argument('--device', dest = 'device', default='cpu', type=str,
+                        help='Device')
     parser.add_argument("--savedir", dest='savedir', default="./saved_models/mnist/vae_flow/beta_400",
                         help="Where to save the trained model.")
     parser.add_argument('--loss_type', default='MSE', type=str, 
@@ -139,8 +139,7 @@ if __name__ == '__main__':
                 optimizer1.zero_grad()
                 optimizer2.zero_grad()
                 recon_batch,z,mu,logvar= modVAE(dat)
-                zhat = modFlow(z)
-                logd = modFlow.log_jacobian(z)
+                zhat, logd = modFlow(z, jac=True)
                 
                 if args.loss_type == 'Perceptual' and (args.dataset == 'mnist' or args.dataset == 'Fashion-mnist'):
                     rbc =  torch.cat((recon_batch,recon_batch,recon_batch),dim=1)

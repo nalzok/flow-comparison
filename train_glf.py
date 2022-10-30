@@ -33,8 +33,8 @@ if __name__ == '__main__':
                         help="Number of epochs to train on.")
     parser.add_argument("--batch_size", dest="batch_size", default=256, type=int,
                         help="Number of examples per batch.")
-    parser.add_argument('--device', dest = 'device',default=0, type=int, 
-                        help='Index of device')
+    parser.add_argument('--device', dest = 'device',default="cpu", type=str,
+                        help='Device')
     parser.add_argument("--savedir", dest='savedir', default="./saved_models/mnist/glf/",
                         help="Where to save the trained model.")
     parser.add_argument('--loss_type', default='MSE', type=str, 
@@ -143,8 +143,7 @@ if __name__ == '__main__':
                 recon_batch,z= modAE(dat)
                 
                 #STOP THE GRADIENT OF NLL LOSS AT z
-                zhat = modFlow(z.data)
-                logd = modFlow.log_jacobian(z.data)
+                zhat, logd = modFlow(z.data, jac=True)
                 
                 if args.loss_type == 'Perceptual' and (args.dataset == 'mnist' or args.dataset == 'fashion-mnist'):
                     rbc =  torch.cat((recon_batch,recon_batch,recon_batch),dim=1)
@@ -179,4 +178,4 @@ if __name__ == '__main__':
         if epoch % 50 == 0:
             torch.save(modFlow.state_dict(), os.path.join(args.savedir, 'flowModel_epo{}'.format(epoch)))
             torch.save(modAE.state_dict(), os.path.join(args.savedir, 'AEModel_epo{}'.format(epoch)))
-    
+
