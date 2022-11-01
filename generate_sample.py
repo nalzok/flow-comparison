@@ -79,7 +79,7 @@ if __name__ == "__main__":
         help="Hidden size of inner layers of nonlinearity of flow",
     )
     parser.add_argument(
-        "--num_block", dest="nbck", default=4, type=int, help="num of flow blocks"
+        "--num_block", dest="num_block", default=4, type=int, help="num of flow blocks"
     )
 
     parser.add_argument(
@@ -118,7 +118,7 @@ if __name__ == "__main__":
 
     for i in range(20):
         noise = torch.randn(500, args.num_latent).to(device)
-        zs = modFlow(noise, rev=True)
+        zs, _ = modFlow(noise, rev=True)
         sample = modAE.decode(zs)
         nc, h, w = sample.shape[1:]
         if nc == 1:
